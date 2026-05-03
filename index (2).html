@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="英作文">
+<meta name="theme-color" content="#ffffff">
+<title>口頭英作文トレーニング</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: #f5f4f0; min-height: 100vh; }
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+.top-bar { background: #fff; border-bottom: 1px solid #e8e6e0; padding: 14px 20px 12px; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 12px; }
+.top-bar-title { font-size: 15px; font-weight: 600; color: #1a1a1a; flex: 1; }
+.back-btn { font-size: 14px; color: #0f6e56; cursor: pointer; white-space: nowrap; padding: 4px 0; }
+.list-hero { padding: 24px 20px 4px; }
+.list-hero h1 { font-size: 24px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; }
+.list-hero p { font-size: 13px; color: #999; margin-top: 4px; }
+.article-list { padding: 16px 16px 40px; display: flex; flex-direction: column; gap: 10px; max-width: 600px; width: 100%; margin: 0 auto; }
+.article-card { background: #fff; border-radius: 14px; border: 1px solid #e8e6e0; padding: 16px 18px; display: flex; align-items: center; gap: 14px; }
+.article-card-tap { cursor: pointer; flex: 1; display: flex; align-items: center; gap: 14px; }
+.article-card-tap:active { opacity: 0.7; }
+.article-num { width: 36px; height: 36px; border-radius: 10px; background: #f0f9f5; color: #0f6e56; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.article-num.custom { background: #f5f0fa; color: #7c3aed; font-size: 18px; }
+.article-info { flex: 1; min-width: 0; }
+.article-topic { font-size: 11px; color: #999; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.article-title { font-size: 15px; font-weight: 600; color: #1a1a1a; line-height: 1.35; }
+.article-meta { font-size: 11px; color: #bbb; margin-top: 3px; }
+.article-arrow { color: #ccc; font-size: 20px; flex-shrink: 0; }
+.delete-btn { font-size: 12px; color: #cc0033; background: #fff0f3; border: none; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+.add-card { background: #fff; border-radius: 14px; border: 1.5px dashed #b8dfd4; padding: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: #0f6e56; font-size: 15px; font-weight: 600; }
+.add-card:active { background: #f0f9f5; }
+.form-body { flex: 1; padding: 20px 16px 40px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; width: 100%; margin: 0 auto; overflow-y: auto; }
+.form-section { background: #fff; border-radius: 14px; border: 1px solid #e8e6e0; overflow: hidden; }
+.form-section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #999; padding: 12px 16px 0; text-transform: uppercase; }
+.field { padding: 8px 16px 10px; border-bottom: 1px solid #f0eee8; }
+.field:last-child { border-bottom: none; }
+.field label { display: block; font-size: 11px; color: #aaa; margin-bottom: 3px; }
+.field input { width: 100%; font-size: 15px; font-family: inherit; color: #1a1a1a; background: transparent; border: none; outline: none; line-height: 1.5; padding: 2px 0; }
+.ocr-area { background: #fff; border-radius: 14px; border: 1.5px dashed #b8dfd4; overflow: hidden; }
+.ocr-upload-label { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 22px; cursor: pointer; color: #0f6e56; font-size: 15px; font-weight: 600; }
+.ocr-upload-label:active { background: #f0f9f5; }
+.ocr-preview { width: 100%; max-height: 220px; object-fit: contain; display: none; }
+.ocr-run-btn { width: 100%; padding: 14px; background: #0f6e56; color: #fff; border: none; font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; display: none; }
+.ocr-run-btn:active { background: #085041; }
+.ocr-status { padding: 12px 16px; font-size: 13px; color: #888; text-align: center; display: none; }
+.pairs-list { display: flex; flex-direction: column; }
+.pair-item { border-bottom: 1px solid #f0eee8; padding: 12px 16px; }
+.pair-item:last-child { border-bottom: none; }
+.pair-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.pair-num-label { font-size: 11px; font-weight: 600; color: #bbb; }
+.pair-del-btn { font-size: 11px; color: #cc0033; background: #fff0f3; border: none; border-radius: 6px; padding: 3px 8px; cursor: pointer; font-family: inherit; }
+.pair-row { margin-bottom: 6px; }
+.pair-row label { font-size: 10px; color: #bbb; display: block; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.pair-row textarea { width: 100%; font-size: 14px; font-family: inherit; color: #1a1a1a; background: transparent; border: none; outline: none; resize: none; line-height: 1.55; min-height: 44px; padding: 2px 0; }
+.add-pair-btn { margin: 2px 16px 14px; padding: 10px; background: #f5f4f0; border: none; border-radius: 10px; font-size: 14px; color: #0f6e56; font-weight: 600; font-family: inherit; cursor: pointer; display: block; width: calc(100% - 32px); }
+.add-pair-btn:active { background: #e8e6e0; }
+.save-btn { background: #1a1a1a; color: #fff; border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.save-btn:active { background: #333; }
+.progress-sub { padding: 8px 20px 10px; background: #fff; border-bottom: 1px solid #e8e6e0; }
+.progress-wrap { display: flex; align-items: center; gap: 10px; }
+.progress-bar { flex: 1; height: 3px; background: #e8e6e0; border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: #0f6e56; border-radius: 2px; transition: width 0.3s ease; }
+.counter { font-size: 11px; color: #999; white-space: nowrap; }
+.practice-body { flex: 1; display: flex; flex-direction: column; padding: 20px 16px; gap: 14px; max-width: 600px; width: 100%; margin: 0 auto; }
+.card { background: #fff; border-radius: 14px; border: 1px solid #e8e6e0; padding: 22px 20px; }
+.card-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; margin-bottom: 10px; }
+.card-text { font-size: 17px; line-height: 1.7; color: #1a1a1a; }
+.card-en { border-top: 3px solid #0f6e56; cursor: pointer; }
+.card-en:active { background: #f9f9f7; }
+.en-placeholder { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 18px 0 10px; color: #bbb; font-size: 14px; }
+.en-revealed { font-size: 16px; line-height: 1.75; color: #1a1a1a; }
+.practice-nav { display: flex; gap: 10px; max-width: 600px; width: 100%; margin: 0 auto; padding: 0 16px 40px; }
+.practice-nav button { flex: 1; padding: 14px 10px; font-size: 15px; font-family: inherit; background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; color: #1a1a1a; cursor: pointer; }
+.practice-nav button:active { background: #f5f4f0; }
+.practice-nav button:disabled { opacity: 0.3; }
+.practice-nav button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.practice-nav button.primary:active { background: #333; }
+</style>
+</head>
+<body>
+
+<!-- パスワード画面 -->
+<div id="screen-password" style="position:fixed;inset:0;background:#f5f4f0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:40px 24px;">
+  <div style="font-size:28px;font-weight:700;color:#1a1a1a;letter-spacing:-0.02em;margin-bottom:8px;">英作文トレーニング</div>
+  <div style="font-size:14px;color:#999;margin-bottom:40px;">パスワードを入力してください</div>
+  <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;">
+    <input id="pw-input" type="password" placeholder="パスワード"
+      style="width:100%;padding:14px 16px;font-size:16px;font-family:inherit;border:1px solid #e8e6e0;border-radius:12px;background:#fff;outline:none;text-align:center;letter-spacing:0.1em;"
+      onkeydown="if(event.key==='Enter')checkPw()">
+    <button onclick="checkPw()" style="width:100%;padding:14px;font-size:16px;font-weight:600;font-family:inherit;background:#1a1a1a;color:#fff;border:none;border-radius:12px;cursor:pointer;">開く</button>
+    <div id="pw-error" style="text-align:center;font-size:13px;color:#cc0033;min-height:20px;"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var PW = 'hottea';
+  var KEY = 'eigo_auth';
+  function checkPw(){
+    var val = document.getElementById('pw-input').value;
+    if(val === PW){
+      sessionStorage.setItem(KEY, '1');
+      document.getElementById('screen-password').style.display = 'none';
+    } else {
+      document.getElementById('pw-error').textContent = 'パスワードが違います';
+      document.getElementById('pw-input').value = '';
+    }
+  }
+  window.checkPw = checkPw;
+  // APIキー設定画面の表示
+  window.showApiKeyScreen = function(){ document.getElementById("screen-apikey").style.display = "flex"; };
+  if(sessionStorage.getItem(KEY) !== '1'){
+    document.addEventListener('DOMContentLoaded', function(){
+      document.getElementById('screen-password').style.display = 'flex';
+    });
+  } else {
+    document.getElementById('screen-password').style.display = 'none';
+  }
+})();
+
+// ★ APIキーをここに入力してください ★
+const ANTHROPIC_API_KEY = localStorage.getItem('eigo_api_key') || '';
+</script>
+
+
+<!-- APIキー設定画面 -->
+<div id="screen-apikey" style="position:fixed;inset:0;background:#f5f4f0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9998;padding:40px 24px;">
+  <div style="font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-0.02em;margin-bottom:8px;">APIキーの設定</div>
+  <div style="font-size:13px;color:#999;margin-bottom:8px;text-align:center;">Anthropic APIキーを入力してください</div>
+  <div style="font-size:12px;color:#bbb;margin-bottom:32px;text-align:center;">console.anthropic.com で取得できます</div>
+  <div style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px;">
+    <input id="api-input" type="password" placeholder="sk-ant-..."
+      style="width:100%;padding:14px 16px;font-size:14px;font-family:inherit;border:1px solid #e8e6e0;border-radius:12px;background:#fff;outline:none;letter-spacing:0.04em;">
+    <button onclick="saveApiKey()" style="width:100%;padding:14px;font-size:16px;font-weight:600;font-family:inherit;background:#1a1a1a;color:#fff;border:none;border-radius:12px;cursor:pointer;">保存して開始</button>
+    <div id="api-error" style="text-align:center;font-size:13px;color:#cc0033;min-height:20px;"></div>
+  </div>
+</div>
+
+<!-- 一覧 -->
+<div id="screen-list" class="screen active">
+  <div style="display:flex;justify-content:flex-end;padding:12px 20px 0;"><span onclick="document.getElementById("screen-apikey").style.display="flex"" style="font-size:12px;color:#999;cursor:pointer;">⚙ APIキー設定</span></div>
+  <div class="list-hero">
+    <h1>英作文トレーニング</h1>
+    <p>記事を選んで練習しましょう</p>
+  </div>
+  <div class="article-list" id="article-list"></div>
+</div>
+
+<!-- 追加・編集 -->
+<div id="screen-edit" class="screen">
+  <div class="top-bar">
+    <div class="back-btn" onclick="showList()">← キャンセル</div>
+    <div class="top-bar-title" id="edit-title">記事を追加</div>
+  </div>
+  <div class="form-body">
+
+    <!-- 画像OCRセクション -->
+    <div class="ocr-area">
+      <label class="ocr-upload-label" for="ocr-input">
+        <span style="font-size:22px">📷</span>
+        <span>画像をアップロードしてOCR</span>
+      </label>
+      <input type="file" id="ocr-input" accept="image/*" style="display:none" onchange="onImageSelected(event)">
+      <img id="ocr-preview" class="ocr-preview" alt="preview">
+      <div id="ocr-status" class="ocr-status"></div>
+      <button id="ocr-run-btn" class="ocr-run-btn" onclick="runOcr()">この画像から和文・英文を抽出する</button>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-label">記事情報</div>
+      <div class="field"><label>英語トピック（任意）</label><input id="f-topic" type="text" placeholder="例：Corporate Governance"></div>
+      <div class="field"><label>日本語タイトル</label><input id="f-title" type="text" placeholder="記事のタイトルを入力"></div>
+      <div class="field"><label>出典（任意）</label><input id="f-source" type="text" placeholder="例：読売新聞 2026年5月1日"></div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-label">対訳ペア</div>
+      <div class="pairs-list" id="pairs-list"></div>
+      <button class="add-pair-btn" onclick="addPair()">＋ 対訳ペアを追加</button>
+    </div>
+    <button class="save-btn" onclick="saveArticle()">保存する</button>
+  </div>
+</div>
+
+<!-- 練習 -->
+<div id="screen-practice" class="screen">
+  <div class="top-bar">
+    <div class="back-btn" onclick="showList()">← 一覧</div>
+    <div class="top-bar-title" id="practice-title"></div>
+  </div>
+  <div class="progress-sub">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+      <div class="counter" id="counter"></div>
+    </div>
+  </div>
+  <div class="practice-body">
+    <div class="card">
+      <div class="card-label">和文 — 英訳してみましょう</div>
+      <div class="card-text" id="ja-text"></div>
+    </div>
+    <div class="card card-en" onclick="toggleEn()">
+      <div class="card-label">英文</div>
+      <div id="en-content"></div>
+    </div>
+  </div>
+  <div class="practice-nav">
+    <button id="btn-prev" onclick="prev()">← 前へ</button>
+    <button class="primary" id="btn-reveal" onclick="toggleEn()">英文を見る</button>
+    <button id="btn-next" onclick="next()">次へ →</button>
+  </div>
+</div>
+
+<script>
+const DEFAULT_ARTICLES = [
+  {
+    id:"default-1", topic:"Vietnam's new leadership", title:"異例の人事で成長目指せるか",
+    source:"読売新聞 2026年4月20日", isDefault:true,
+    pairs:[
+      {ja:"共産党の一党支配下にあるベトナムで、新体制が発足した。",en:"A new leadership structure has been established in Vietnam, which is under the one-party rule of the Communist Party."},
+      {ja:"最高指導者に権力を集中させる異例の人事で、社会の抑圧や対中傾斜が強まらないか注視する必要がある。",en:"In light of this unprecedented step, which concentrates power in the hands of a supreme leader, it is necessary to closely monitor whether social repression and a move toward China will intensify."},
+      {ja:"ベトナム国会は、最高指導者のト・ラム共産党書記長が国家主席を兼務する人事を承認した。",en:"The Vietnamese National Assembly has approved the appointment of Communist Party General Secretary To Lam, the nation's supreme leader, to concurrently serve as the nation's president."},
+      {ja:"ベトナムではこれまで党序列2位の指導者が国家主席を務め、外交も行ってきた。",en:"Traditionally, the leader ranked second in the party served as Vietnam's president and handled foreign affairs."},
+      {ja:"過去には前任者の死去に伴って両者のポストを一時的に兼務する例はあったが、今回はそうしたケースには当たらない。",en:"There have been past cases in which the two posts were temporarily held by one leader due to the death of a predecessor, but the latest arrangement is different."},
+      {ja:"兼務を常態化させる動きと見るべきだ。",en:"This move should be viewed as an effort to make the dual role permanent."},
+      {ja:"1976年の南北統一以降、書記長、国家主席、首相らに権力を分散する集団指導体制を取ってきた。",en:"Since the reunification of North and South Vietnam in 1976, the country has maintained a collective leadership system in which power is distributed among such leaders as the general secretary, the president and the prime minister."},
+      {ja:"だが、書記長に権力を集中させる動きは前書記長時代にも見られていた。",en:"However, the trend toward concentrating power in the general secretary began during the previous general secretary's tenure."},
+      {ja:"前書記長は、党規約で規定された連続2期の任期を超え、3期目の任期を途中で辞した。",en:"The former general secretary went into a third term, exceeding the two consecutive terms stipulated in the Party Charter, and died midway through his third term."},
+      {ja:"後を継いだラム氏は長年公安畑を歩み、前書記長の下で公安相として汚職摘発に辣腕を振るった。",en:"Lam, who took over from the previous general secretary, has long served in the field of public security. Under the former general secretary, Lam demonstrated a strong hand in cracking down on corruption as public security minister."},
+      {ja:"多数の党幹部を失脚させ、自身の権力基盤を固めたとされる。",en:"He is said to have ousted numerous top party officials and solidified his own power base."},
+      {ja:"ラム氏は1月の党大会で、2026〜30年の経済成長率を年平均10%以上とし、45年には先進国入りするとの国家目標を掲げた。",en:"At the Party Congress in January, Lam set national goals of achieving an average annual economic growth rate of over 10% in the period from 2026 to 2030 and pushing his country to become a developed nation by 2045."},
+      {ja:"経済成長を実現するため、自身に権力を集中させ、意思決定の迅速化を図る考えなのだろう。",en:"To achieve this economic growth, he likely intends to centralize power in his own hands to realize speedy decision-making."},
+      {ja:"ベトナムはこれまで、中国やロシアと友好関係を維持する一方で、米国とも関係を強化する「全方位外交」を基本としてきた。",en:"Vietnam has historically pursued a policy of 'omnidirectional diplomacy,' in which it has strengthened its ties with the United States while simultaneously maintaining friendly relations with China and Russia."},
+      {ja:"ラム氏は、国家主席就任後の初外遊先に中国を選び、習近平国家主席との会談で対中関係の発展と経済協力への期待を示した。",en:"Lam chose China as the destination for his first overseas trip since assuming the role of president. During his meeting with Chinese President Xi Jinping, Lam said the development of relations with China is a 'top priority' and expressed hope for economic cooperation."},
+      {ja:"一党支配下で集団指導が後退すると、トップの判断の誤りが修正されにくくなる。",en:"However, as has been seen in China's past, when collective leadership recedes under one-party rule, it becomes difficult to correct errors made by the top leader."},
+      {ja:"日本は東南アジア諸国連合（ASEAN）の主要国であるベトナムを重視してきた。",en:"Japan has placed importance on Vietnam for a long time, as it is a key member of the Association of Southeast Asian Nations."},
+      {ja:"高市首相は近く、ベトナムなどを訪問する予定だ。日越が連携を深める契機にしてほしい。",en:"Prime Minister Sanae Takaichi is scheduled to visit Vietnam and another country soon. The visit should serve as an opportunity to deepen cooperation between Japan and Vietnam."}
+    ]
+  },
+  {
+    id:"default-2", topic:"Corporate Governance Code", title:"現金ため込む経営を改めたい",
+    source:"読売新聞 2026年4月20日", isDefault:true,
+    pairs:[
+      {ja:"現金ため込む守りの経営が日本経済の課題と指摘されながら、新たに策定される企業統治指針を踏まえ、資金を成長への投資に振り向けていくべきだ。",en:"Although a defensive management style of retaining cash and deposits has been identified as a challenge for the Japanese economy, it shows no signs of changing. Funds should be redirected toward investments for growth based on the set-to-be-revised Corporate Governance Code."},
+      {ja:"金融庁と東京証券取引所が定める企業統治指針は、上場企業に対し、企業価値の向上を求める行動原則と言える。",en:"The code established by the Financial Services Agency and the Tokyo Stock Exchange can be described as a set of principles requiring listed companies to take actions that enhance corporate values."},
+      {ja:"守らない場合は投資家に説明する必要があるため、実質的な拘束力を持っている。",en:"Since companies must explain to investors if they fail to comply, the code effectively has binding force."},
+      {ja:"安倍政権の下で、成長戦略の柱として2015年に初めて発布されたこの指針は、株主との対話の充実や社外取締役を増やして取締役会の機能を強化することなどを定めた。",en:"The code was first formulated in 2015 under the administration of then Prime Minister Shinzo Abe as a pillar of its growth strategy, and stipulates measures such as enhancing dialogue with shareholders and strengthening the functions of the board of directors by increasing the number of outside directors."},
+      {ja:"18年と21年に改訂された指針がこれまで一定の効果を発揮したことは間違いない。",en:"There is no doubt that the code, revised in 2018 and 2021, has been effective to a certain degree thus far."},
+      {ja:"企業収益力は向上し、外国からの投資も増えた。",en:"Corporate profitability has improved, and foreign investment has increased."},
+      {ja:"日経平均株価は過去最高値を更新し、6万円に近づいている。",en:"The Nikkei Stock Average has reached a record high and is approaching 60,000."},
+      {ja:"金融庁などは現在、今夏をめどに5年ぶりに指針を改訂する検討を進めている。",en:"The FSA and others are currently considering revising the code for the first time in five years, with a target date of this summer."},
+      {ja:"改訂案には、取締役会が現金などの資産を不動産などの経営資源に有効活用できているか、不断に検証すべきだと明記した。",en:"The draft of the revised code explicitly calls for boards of directors to continuously verify whether their companies are effectively utilizing management resources such as cash and deposits, as well as real estate."},
+      {ja:"企業が漫然と現金を眠らせたままにするのは難しくなる。",en:"The revised code will make it difficult for companies to simply leave their cash and deposits idle."},
+      {ja:"リスクをとって成長分野への投資を進めなければならない。",en:"They must take risks and invest in growth sectors."},
+      {ja:"持続的な成長に向けては、企業統治の強化も課題だ。",en:"Strengthening corporate governance is also a key challenge for achieving sustainable growth."},
+      {ja:"形式的に社外取締役を整えたものの、内実を伴わない事例が枚挙にいとまがないからだ。",en:"This is because there are countless cases of companies merely introducing outside directors as a formality, without any substance."},
+      {ja:"最近もモーター大手ニデックで巨額の不正会計が発覚し、取締役会の機能不全があらわになった。",en:"Recently, massive accounting fraud was uncovered at major motor manufacturer Nidec Corp, exposing the dysfunction of its board of directors."},
+      {ja:"改訂案で、独立社外取締役が、経営陣の選任や解任に主体的に関わるよう求めることにしたのは妥当だ。",en:"It is appropriate that the revised code will require independent outside directors to take a proactive role in the appointment and dismissal of members of management teams."},
+      {ja:"企業は指針を踏まえた具体策を練る必要がある。",en:"Companies must devise concrete measures based on the code."},
+      {ja:"株主還元策にばかり追われて商品やサービスの魅力を高める戦略を強化しなければ、国民が恩恵を感じられるはずはなく経済の成長も限られる。",en:"Unless companies stop focusing solely on measures to give returns to shareholders and instead strengthen strategies to enhance the appeal of their products and services, the public will not feel the benefits, and economic growth will remain limited."},
+      {ja:"24年度の配当総額も23兆円と過去最高を記録した。株価上昇を狙った安易な自社株買いだ。",en:"In fiscal 2024, total dividends paid out also reached a record high of 23 trillion yen. As a reckless result, stock buybacks aimed solely at driving up stock prices have increased."}
+    ]
+  }
+];
+
+const STORAGE_KEY = 'eigo_custom_articles';
+function loadCustom() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { return []; } }
+function saveCustom(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+function allArticles() { return [...DEFAULT_ARTICLES, ...loadCustom()]; }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showList() { buildList();
+// APIキー未設定なら設定画面を表示
+if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStorage.getItem("eigo_auth")==="1") document.getElementById("screen-apikey").style.display="flex"; },300); } showScreen('screen-list'); }
+
+function buildList() {
+  const all = allArticles();
+  const el = document.getElementById('article-list');
+  el.innerHTML = '';
+  all.forEach((art, idx) => {
+    const card = document.createElement('div');
+    card.className = 'article-card';
+    const numEl = art.isDefault
+      ? '<div class="article-num">' + (idx+1) + '</div>'
+      : '<div class="article-num custom">✎</div>';
+    const delBtn = art.isDefault ? '' : '<button class="delete-btn" onclick="deleteArt(event,\'' + art.id + '\')">削除</button>';
+    card.innerHTML = numEl +
+      '<div class="article-card-tap" onclick="startPractice(' + idx + ')">' +
+        '<div class="article-info">' +
+          '<div class="article-topic">' + esc(art.topic || '') + '</div>' +
+          '<div class="article-title">' + esc(art.title) + '</div>' +
+          '<div class="article-meta">' + esc(art.source || '') + (art.source ? ' · ' : '') + art.pairs.length + '文</div>' +
+        '</div>' +
+        '<div class="article-arrow">›</div>' +
+      '</div>' + delBtn;
+    el.appendChild(card);
+  });
+  const addCard = document.createElement('div');
+  addCard.className = 'add-card';
+  addCard.innerHTML = '<span style="font-size:22px">＋</span><span>新しい記事を追加</span>';
+  addCard.onclick = () => openEdit(null);
+  el.appendChild(addCard);
+}
+
+function deleteArt(e, id) {
+  e.stopPropagation();
+  if (!confirm('この記事を削除しますか？')) return;
+  saveCustom(loadCustom().filter(a => a.id !== id));
+  buildList();
+// APIキー未設定なら設定画面を表示
+if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStorage.getItem("eigo_auth")==="1") document.getElementById("screen-apikey").style.display="flex"; },300); }
+}
+
+// ===== OCR =====
+let ocrImageBase64 = null;
+
+function onImageSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    ocrImageBase64 = dataUrl.split(',')[1];
+    const preview = document.getElementById('ocr-preview');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    document.getElementById('ocr-run-btn').style.display = 'block';
+    document.getElementById('ocr-status').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function runOcr() {
+  if (!ocrImageBase64) return;
+  const statusEl = document.getElementById('ocr-status');
+  const runBtn = document.getElementById('ocr-run-btn');
+  statusEl.style.display = 'block';
+  statusEl.style.color = '#888';
+  statusEl.textContent = '画像を解析中です。しばらくお待ちください...';
+  runBtn.disabled = true;
+
+  const apiKey = localStorage.getItem('eigo_api_key') || '';
+  if (!apiKey) {
+    statusEl.textContent = 'APIキーが設定されていません。右上の ⚙ APIキー設定 から入力してください。';
+    statusEl.style.color = '#cc0033';
+    runBtn.disabled = false;
+    return;
+  }
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      const apiKey = localStorage.getItem('eigo_api_key') || '';
+    if(!apiKey){ statusEl.textContent = 'APIキーが設定されていません。右上の⚙から設定してください。'; statusEl.style.color='#cc0033'; runBtn.disabled=false; return; }
+
+    const response2 = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: 'image/jpeg', data: ocrImageBase64 }
+            },
+            {
+              type: 'text',
+              text: `この画像は日本語記事と英語記事が左右または上下に並んだ新聞・雑誌の画像です。
+和文（日本語）と英文（英語）を一文ずつ対応させて抽出してください。
+必ず以下のJSON形式のみで返してください。前後に説明文は不要です。
+
+{
+  "topic": "英語のトピック名（英文見出しから抽出）",
+  "title": "日本語タイトル（和文見出しから抽出）",
+  "source": "出典（紙名と日付、画像から読み取れる場合のみ）",
+  "pairs": [
+    {"ja": "和文1文目", "en": "英文1文目"},
+    {"ja": "和文2文目", "en": "英文2文目"}
+  ]
+}`
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'APIエラー');
+
+    const text = data.content[0].text.trim();
+    const clean = text.replace(/^```json\s*/,'').replace(/\s*```$/,'');
+    const parsed = JSON.parse(clean);
+
+    // フォームに反映
+    document.getElementById('f-topic').value = parsed.topic || '';
+    document.getElementById('f-title').value = parsed.title || '';
+    document.getElementById('f-source').value = parsed.source || '';
+    document.getElementById('pairs-list').innerHTML = '';
+    pairSeq = 0;
+    (parsed.pairs || []).forEach(p => addPair(p.ja, p.en));
+
+    statusEl.textContent = parsed.pairs.length + '文を抽出しました。内容を確認して保存してください。';
+    statusEl.style.color = '#0f6e56';
+  } catch(e) {
+    statusEl.textContent = 'エラーが発生しました: ' + e.message;
+    statusEl.style.color = '#cc0033';
+  }
+  runBtn.disabled = false;
+}
+
+// ===== 追加・編集 =====
+let editingId = null;
+let pairSeq = 0;
+
+function openEdit(id) {
+  editingId = id;
+  pairSeq = 0;
+  ocrImageBase64 = null;
+  document.getElementById('edit-title').textContent = id ? '記事を編集' : '記事を追加';
+  document.getElementById('f-topic').value = '';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-source').value = '';
+  document.getElementById('pairs-list').innerHTML = '';
+  document.getElementById('ocr-preview').style.display = 'none';
+  document.getElementById('ocr-run-btn').style.display = 'none';
+  document.getElementById('ocr-status').style.display = 'none';
+  document.getElementById('ocr-input').value = '';
+  if (id) {
+    const art = loadCustom().find(a => a.id === id);
+    if (art) {
+      document.getElementById('f-topic').value = art.topic || '';
+      document.getElementById('f-title').value = art.title;
+      document.getElementById('f-source').value = art.source || '';
+      art.pairs.forEach(p => addPair(p.ja, p.en));
+    }
+  } else { addPair(); }
+  showScreen('screen-edit');
+}
+
+function addPair(ja='', en='') {
+  const n = ++pairSeq;
+  const div = document.createElement('div');
+  div.className = 'pair-item';
+  div.id = 'pair-' + n;
+  div.innerHTML =
+    '<div class="pair-header"><span class="pair-num-label">' + n + '文目</span><button class="pair-del-btn" onclick="removePair(' + n + ')">削除</button></div>' +
+    '<div class="pair-row"><label>和文</label><textarea id="pja-' + n + '" rows="2" placeholder="日本語の文を入力">' + esc(ja) + '</textarea></div>' +
+    '<div class="pair-row"><label>英文</label><textarea id="pen-' + n + '" rows="2" placeholder="English sentence">' + esc(en) + '</textarea></div>';
+  document.getElementById('pairs-list').appendChild(div);
+  div.querySelectorAll('textarea').forEach(ta => {
+    const resize = () => { ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; };
+    ta.addEventListener('input', resize);
+    setTimeout(resize, 10);
+  });
+}
+
+function removePair(n) { const el = document.getElementById('pair-'+n); if (el) el.remove(); }
+
+function saveArticle() {
+  const topic = document.getElementById('f-topic').value.trim();
+  const title = document.getElementById('f-title').value.trim();
+  const source = document.getElementById('f-source').value.trim();
+  if (!title) { alert('タイトルを入力してください'); return; }
+  const pairs = [];
+  document.querySelectorAll('.pair-item').forEach(item => {
+    const n = item.id.replace('pair-','');
+    const ja = (document.getElementById('pja-'+n)||{}).value||'';
+    const en = (document.getElementById('pen-'+n)||{}).value||'';
+    if (ja.trim()||en.trim()) pairs.push({ja:ja.trim(), en:en.trim()});
+  });
+  if (!pairs.length) { alert('対訳ペアを1つ以上追加してください'); return; }
+  const list = loadCustom();
+  if (editingId) {
+    const i = list.findIndex(a => a.id===editingId);
+    if (i>=0) list[i] = {...list[i], topic, title, source, pairs};
+  } else {
+    list.push({id:'c-'+Date.now(), topic, title, source, isDefault:false, pairs});
+  }
+  saveCustom(list);
+  showList();
+}
+
+// ===== 練習 =====
+let practiceArt = null;
+let sentIdx = 0;
+let revealed = false;
+
+function startPractice(idx) {
+  practiceArt = allArticles()[idx];
+  sentIdx = 0; revealed = false;
+  renderPractice();
+  showScreen('screen-practice');
+}
+
+function renderPractice() {
+  const p = practiceArt.pairs[sentIdx];
+  const pct = ((sentIdx+1)/practiceArt.pairs.length*100).toFixed(0);
+  document.getElementById('practice-title').textContent = practiceArt.title;
+  document.getElementById('prog').style.width = pct+'%';
+  document.getElementById('counter').textContent = (sentIdx+1)+' / '+practiceArt.pairs.length;
+  document.getElementById('ja-text').textContent = p.ja;
+  document.getElementById('btn-prev').disabled = sentIdx===0;
+  document.getElementById('btn-next').disabled = sentIdx===practiceArt.pairs.length-1;
+  revealed = false;
+  renderEn();
+}
+
+function renderEn() {
+  const p = practiceArt.pairs[sentIdx];
+  const el = document.getElementById('en-content');
+  const btn = document.getElementById('btn-reveal');
+  if (revealed) {
+    el.innerHTML = '<div class="en-revealed">'+esc(p.en)+'</div>';
+    btn.textContent = '隠す';
+  } else {
+    el.innerHTML = '<div class="en-placeholder"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#bbb" stroke-width="1.2"/><path d="M8 5v4M8 11v.5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round"/></svg>タップして英文を表示</div>';
+    btn.textContent = '英文を見る';
+  }
+}
+
+function toggleEn() { revealed=!revealed; renderEn(); }
+function next() { if(sentIdx<practiceArt.pairs.length-1){sentIdx++;renderPractice();} }
+function prev() { if(sentIdx>0){sentIdx--;renderPractice();} }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+buildList();
+// APIキー未設定なら設定画面を表示
+if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStorage.getItem("eigo_auth")==="1") document.getElementById("screen-apikey").style.display="flex"; },300); }
+</script>
+</body>
+</html>
