@@ -364,17 +364,6 @@ async function runOcr() {
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      const apiKey = localStorage.getItem('eigo_api_key') || '';
-    if(!apiKey){ statusEl.textContent = 'APIキーが設定されていません。右上の⚙から設定してください。'; statusEl.style.color='#cc0033'; runBtn.disabled=false; return; }
-
-    const response2 = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
