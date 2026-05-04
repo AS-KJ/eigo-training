@@ -330,6 +330,7 @@ if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStor
 
 // ===== OCR =====
 let ocrImageBase64 = null;
+let ocrImageType = 'image/jpeg';
 
 function onImageSelected(event) {
   const file = event.target.files[0];
@@ -338,6 +339,7 @@ function onImageSelected(event) {
   reader.onload = function(e) {
     const dataUrl = e.target.result;
     ocrImageBase64 = dataUrl.split(',')[1];
+    ocrImageType = file.type || 'image/jpeg';
     const preview = document.getElementById('ocr-preview');
     preview.src = dataUrl;
     preview.style.display = 'block';
@@ -381,7 +383,7 @@ async function runOcr() {
           content: [
             {
               type: 'image',
-              source: { type: 'base64', media_type: 'image/jpeg', data: ocrImageBase64 }
+              source: { type: 'base64', media_type: ocrImageType, data: ocrImageBase64 }
             },
             {
               type: 'text',
