@@ -113,6 +113,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
   window.checkPw = checkPw;
   // APIキー設定画面の表示
   window.showApiKeyScreen = function(){ document.getElementById("screen-apikey").style.display = "flex"; };
+  window.saveApiKey = function(){
+    var key = document.getElementById('api-input').value.trim();
+    if (!key.startsWith('sk-ant-')) {
+      document.getElementById('api-error').textContent = 'APIキーは sk-ant- で始まります';
+      return;
+    }
+    localStorage.setItem('eigo_api_key', key);
+    document.getElementById('screen-apikey').style.display = 'none';
+  };
   if(sessionStorage.getItem(KEY) !== '1'){
     document.addEventListener('DOMContentLoaded', function(){
       document.getElementById('screen-password').style.display = 'flex';
