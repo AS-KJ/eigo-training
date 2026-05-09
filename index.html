@@ -65,7 +65,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .progress-bar { flex: 1; height: 3px; background: #e8e6e0; border-radius: 2px; overflow: hidden; }
 .progress-fill { height: 100%; background: #0f6e56; border-radius: 2px; transition: width 0.3s ease; }
 .counter { font-size: 11px; color: #999; white-space: nowrap; }
-.practice-body { flex: 1; display: flex; flex-direction: column; padding: 20px 16px; gap: 14px; max-width: 600px; width: 100%; margin: 0 auto; }
+.practice-body { flex: 1; display: flex; flex-direction: column; padding: 20px 16px 120px; gap: 14px; max-width: 600px; width: 100%; margin: 0 auto; }
 .card { background: #fff; border-radius: 14px; border: 1px solid #e8e6e0; padding: 22px 20px; }
 .card-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; margin-bottom: 10px; }
 .card-text { font-size: 17px; line-height: 1.7; color: #1a1a1a; }
@@ -73,7 +73,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .card-en:active { background: #f9f9f7; }
 .en-placeholder { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 18px 0 10px; color: #bbb; font-size: 14px; }
 .en-revealed { font-size: 16px; line-height: 1.75; color: #1a1a1a; }
-.practice-nav { display: flex; gap: 10px; max-width: 600px; width: 100%; margin: 0 auto; padding: 0 16px 40px; }
+.practice-nav { display: flex; gap: 10px; width: 100%; position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px 28px; background: #f5f4f0; border-top: 1px solid #e8e6e0; z-index: 10; }
 .practice-nav button { flex: 1; padding: 14px 10px; font-size: 15px; font-family: inherit; background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; color: #1a1a1a; cursor: pointer; }
 .practice-nav button:active { background: #f5f4f0; }
 .practice-nav button:disabled { opacity: 0.3; }
@@ -498,7 +498,4 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 buildList();
 // APIキー未設定なら設定画面を表示
-if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStorage.getItem("eigo_auth")==="1") document.getElementById("screen-apikey").style.display="flex"; },300); }
-</script>
-</body>
-</html>
+if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStorage.getItem("eigo_auth")==="1") document.get
