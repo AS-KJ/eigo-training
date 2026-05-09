@@ -105,6 +105,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
     if(val === PW){
       sessionStorage.setItem(KEY, '1');
       document.getElementById('screen-password').style.display = 'none';
+      buildList();
+      showScreen('screen-list');
     } else {
       document.getElementById('pw-error').textContent = 'パスワードが違います';
       document.getElementById('pw-input').value = '';
@@ -978,7 +980,4 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 
 buildList();
 // APIキー未設定なら設定画面を表示
-if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStorage.getItem("eigo_auth")==="1") document.getElementById("screen-apikey").style.display="flex"; },300); }
-</script>
-</body>
-</html>
+if(!localStorage.getItem("eigo_api_key")){ setTimeout(function(){ if(sessionStorage.getItem("eigo_auth")==="1") document.getElementById("screen-apikey").style.
